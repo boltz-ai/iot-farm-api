@@ -1,0 +1,65 @@
+version: '3.7'
+
+services:
+  postgres:
+    image: postgres:12
+    container_name: iot_farm_postgres
+    ports:
+      - 5432:5432
+    env_file:
+      - .env
+    environment:
+      TZ: ${DJANGO_TIME_ZONE}
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data/
+
+  postgres_secondary:
+    image: postgres:12
+    container_name: iot_farm_postgres_secondary
+    ports:
+      - 5433:5432
+    env_file:
+      - .env
+    environment:
+      TZ: ${DJANGO_TIME_ZONE}
+    volumes:
+      - postgres_secondary_volume:/var/lib/postgresql/data/
+
+  mongo:
+    image: mongo:4-bionic
+    container_name: iot_farm_mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo_volume:/data/db
+
+  iot_farm_api:
+    env_file:
+      - .env
+    build: .
+    container_name: iot_farm_api
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - 8000:8000
+    volumes:
+      - ./iot_farm:/iot_farm
+    depends_on:
+      - postgres
+      - postgres_secondary
+      - mongo
+
+  document:
+    image: swaggerapi/swagger-ui
+    container_name: iot_farm_api_document
+    volumes:
+      - ./docs:/app/docs
+    ports:
+      - 8080:8080
+    environment:
+      SWAGGER_JSON: /app/docs/IotFramAPIs.yaml
+
+volumes:
+  # default dir on Ubuntu: /var/lib/docker/volumes
+  postgres_volume:
+  postgres_secondary_volume:
+  mongo_volume:

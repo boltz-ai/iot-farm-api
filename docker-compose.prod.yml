@@ -1,0 +1,171 @@
+version: '3.7'
+
+services:
+  postgres:
+    image: postgres:12
+    container_name: iot_farm_postgres
+    ports:
+      - 5432:5432
+    env_file:
+      - .env
+    environment:
+      TZ: ${DJANGO_TIME_ZONE}
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data/
+    networks:
+      - postgres_network
+
+  postgres_secondary:
+    image: postgres:12
+    container_name: iot_farm_postgres_secondary
+    ports:
+      - 5433:5432
+    env_file:
+      - .env
+    environment:
+      TZ: ${DJANGO_TIME_ZONE}
+    volumes:
+      - postgres_secondary_volume:/var/lib/postgresql/data/
+    networks:
+      - postgres_secondary_network
+
+  mongo:
+    image: mongo:4-bionic
+    container_name: iot_farm_mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo_volume:/data/db
+    networks:
+      - mongo_network
+
+  redis:
+    image: redis:latest
+    container_name: iot_farm_redis
+    volumes:
+      - redis_volume:/data
+    ports:
+      - 6379:6379
+    networks:
+      - nginx_network
+      - postgres_network
+      - postgres_secondary_network
+      - mongo_network
+
+  worker:
+    image: celery:4
+    container_name: iot_farm_celery_worker
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    command: celery worker --app iot_farm --loglevel info --logfile celery-worker.log
+    volumes:
+      - ./iot_farm:/home/app/iot_farm
+    depends_on:
+      - redis
+    networks:
+      - nginx_network
+      - postgres_network
+      - postgres_secondary_network
+      - mongo_network
+
+  beat:
+    image: celery:4
+    container_name: iot_farm_celery_beat
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    command: celery beat --app iot_farm --loglevel info --logfile celery-beat.log --pidfile=
+    volumes:
+      - ./iot_farm:/home/app/iot_farm
+    depends_on:
+      - redis
+    networks:
+      - nginx_network
+      - postgres_network
+      - postgres_secondary_network
+      - mongo_network
+
+  iot_farm_api:
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: iot_farm_api
+    command: gunicorn iot_farm.wsgi:application --bind 0.0.0.0:8000
+    ports:
+      - 8000:8000
+    volumes:
+      - ./iot_farm:/home/app/iot_farm
+      - media_volume:/home/app/iot_farm/media
+    depends_on:
+      - postgres
+      - postgres_secondary
+      - mongo
+      - redis
+      - worker
+      - beat
+    networks:
+      - nginx_network
+      - postgres_network
+      - postgres_secondary_network
+      - mongo_network
+
+  nginx:
+    image: nginx:latest
+    restart: unless-stopped
+    container_name: iot_farm_nginx
+    volumes:
+      - media_volume:/home/app/iot_farm/media
+      - ./configs/nginx:/etc/nginx/conf.d
+      - ./configs/certbot/conf:/etc/letsencrypt
+      - ./configs/certbot/www:/var/www/certbot
+    ports:
+      - 80:80
+      - 443:443
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    depends_on:
+      - iot_farm_api
+    networks:
+      - nginx_network
+
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - ./configs/certbot/conf:/etc/letsencrypt
+      - ./configs/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+  document:
+    image: swaggerapi/swagger-ui
+    container_name: iot_farm_api_document
+    volumes:
+      - ./docs:/app/docs
+    ports:
+      - 8080:8080
+    environment:
+      SWAGGER_JSON: /app/docs/IotFramAPIs.yaml
+
+volumes:
+  # default directory on Ubuntu: /var/lib/docker/volumes
+  postgres_volume:
+  postgres_secondary_volume:
+  mongo_volume:
+  redis_volume:
+  media_volume:
+
+networks:
+  nginx_network:
+    driver: bridge
+  postgres_network:
+    driver: bridge
+  postgres_secondary_network:
+    driver: bridge
+  mongo_network:
+    driver: bridge

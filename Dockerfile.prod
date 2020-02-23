@@ -1,0 +1,80 @@
+###########
+# BUILDER #
+###########
+
+# pull official base image
+FROM python:3.8-buster as builder
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE 1
+ARG DEBIAN_FRONTEND=noninteractive
+
+# set work directory
+RUN mkdir /usr/src/app
+WORKDIR /usr/src/app
+
+# Add repository
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ buster-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+RUN apt update
+RUN apt install -y build-essential netcat gcc musl-dev libpq-dev libpq5
+RUN apt autoremove
+
+# lint
+RUN pip install --upgrade pip
+RUN pip install flake8
+COPY . /usr/src/app/
+RUN flake8 --ignore=E501,F401 .
+
+# install dependencies
+COPY ./requirements.txt .
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
+
+
+#########
+# FINAL #
+#########
+
+# pull official base image
+FROM python:3.8-buster
+
+# create directory for the app user
+ENV APP_USER app
+ENV APP_GROUP app
+ENV HOME_USER /home/app
+RUN mkdir -p $HOME_USER
+
+# create the app user
+RUN addgroup --system $APP_GROUP
+RUN adduser --system --home $HOME_USER --ingroup $APP_GROUP $APP_USER
+
+# create the appropriate directories
+ENV APP_HOME $HOME_USER/iot_farm
+RUN mkdir -p $APP_HOME
+WORKDIR $APP_HOME
+
+# install dependencies
+RUN apt update
+RUN apt install -y build-essential netcat gcc musl-dev libpq-dev libpq5
+RUN apt autoremove
+COPY --from=builder /usr/src/app/wheels /wheels
+COPY --from=builder /usr/src/app/requirements.txt .
+RUN pip install --upgrade pip
+RUN pip install --no-cache /wheels/*
+
+# copy entrypoint-prod.sh
+COPY ./entrypoint.prod.sh $APP_HOME
+
+# copy project
+COPY ./iot_farm/ $APP_HOME
+
+# chown all the files to the app user
+RUN chown -R $APP_USER:$APP_GROUP $APP_HOME
+
+# change to the app user
+USER $APP_USER
+
+# run entrypoint.prod.sh
+ENTRYPOINT ["/home/app/iot_farm/entrypoint.prod.sh"]
