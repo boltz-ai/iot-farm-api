@@ -12,11 +12,3 @@ class AppAbstractBaseModel(models.Model):
 
     class Meta:
         abstract = True
-
-
-class NameDescriptionAbstractBaseModel(models.Model):
-    name = models.CharField(_('name'), max_length=200, blank=False, null=False, help_text=_('Required.'), )
-    description = models.TextField(_('description'), blank=True, null=True, help_text=_('Description'), )
-
-    class Meta:
-        abstract = True

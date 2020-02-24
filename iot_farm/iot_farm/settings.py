@@ -39,7 +39,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
+    'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
+    'rest_framework_extensions',
+    'rest_framework_nested',
+    'rest_registration',
+    'users.apps.UsersConfig',
+    'authentication.apps.AuthenticationConfig',
 ]
+
+AUTH_USER_MODEL = 'users.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -136,6 +146,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 MEDIA_URL = '/media/'
 
+
+# Restful APi
+# https://www.django-rest-framework.org/api-guide/settings/
+
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
     'DEFAULT_RENDERER_CLASSES': (
@@ -162,10 +176,14 @@ REST_FRAMEWORK = {
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+
 # CORS Sercurity
+
 CORS_ORIGIN_ALLOW_ALL = True
 
+
 # Setting cache framework
+
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
@@ -178,6 +196,7 @@ CACHES = {
 }
 
 # Celery task queue configs
+
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
 CELERY_BEAT_SCHEDULE = {
@@ -219,6 +238,7 @@ SIMPLE_JWT = {
         hours=int(os.environ.get('SIMPLE_JWT_SLIDING_TOKEN_REFRESH_LIFETIME', 12))),
 }
 
+
 # Setting for registration
 # See: https://github.com/apragacz/django-rest-registration
 
@@ -244,4 +264,3 @@ EMAIL_USE_TLS = bool(eval(os.environ.get('REGISTRATION_EMAIL_USE_TLS', default=T
 EMAIL_PORT = int(os.environ.get('REGISTRATION_EMAIL_PORT', default=587))
 EMAIL_HOST_USER = os.environ.get('REGISTRATION_EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('REGISTRATION_EMAIL_HOST_PASSWORD')
-
