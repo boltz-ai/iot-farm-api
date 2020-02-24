@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from celery.schedules import crontab
+from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,12 +22,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '7r56(t3n164kwtvb=9m#cyub0q-ip@em9b!4z=%8^2tmyz5o)3'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(eval(os.environ.get('DJANGO_DEBUG', default=False)))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 
 # Application definition
@@ -73,10 +75,21 @@ WSGI_APPLICATION = 'iot_farm.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': os.environ.get("DB_ENGINE", "django.db.backends.sqlite3"),
+        'NAME': os.environ.get('POSTGRES_DB', os.path.join(BASE_DIR, 'db.sqlite3')),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
     }
 }
 
@@ -105,7 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = os.environ.get('DJANGO_TIME_ZONE', 'UTC')
 
 USE_I18N = True
 
@@ -118,3 +131,117 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+MEDIA_URL = '/media/'
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10,
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FileUploadParser',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+        # 'rest_framework.permissions.IsAuthenticated',
+    ),
+    # 'EXCEPTION_HANDLER': 'apps.core.views.exception_handler',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTTokenUserAuthentication',
+    ),
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+}
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# CORS Sercurity
+CORS_ORIGIN_ALLOW_ALL = True
+
+# Setting cache framework
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.environ.get('REDIS_LOCATION'),
+        'KEY_PREFIX': 'enhance_video',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+# Celery task queue configs
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
+CELERY_BEAT_SCHEDULE = {
+    # Only for demo (run every minute), should remove in production
+    'demo-scheduled-task': {
+        'task': 'apps.users.tasks.demo_scheduled_task',
+        'schedule': crontab(minute='*')
+    },
+}
+
+
+# Simple JWT
+# A JSON Web Token authentication plugin for the Django REST Framework.
+# See: https://github.com/davesque/django-rest-framework-simplejwt
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(os.environ.get('SIMPLE_JWT_ACCESS_TOKEN_LIFETIME', 30))),
+    'REFRESH_TOKEN_LIFETIME': timedelta(hours=int(os.environ.get('SIMPLE_JWT_REFRESH_TOKEN_LIFETIME', 12))),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+
+    'ALGORITHM': 'HS512',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user',
+
+    'AUTH_TOKEN_CLASSES': (
+        'rest_framework_simplejwt.tokens.AccessToken',
+        # 'rest_framework_simplejwt.tokens.SlidingToken',
+    ),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+
+    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=int(os.environ.get('SIMPLE_JWT_SLIDING_TOKEN_LIFETIME', 30))),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(
+        hours=int(os.environ.get('SIMPLE_JWT_SLIDING_TOKEN_REFRESH_LIFETIME', 12))),
+}
+
+# Setting for registration
+# See: https://github.com/apragacz/django-rest-registration
+
+REST_REGISTRATION = {
+    'REGISTER_VERIFICATION_ENABLED': True,
+    'REGISTER_EMAIL_VERIFICATION_ENABLED': True,
+    'RESET_PASSWORD_VERIFICATION_ENABLED': True,
+    'REGISTER_VERIFICATION_URL': os.environ.get('REGISTER_VERIFICATION_URL'),
+    'REGISTER_EMAIL_VERIFICATION_URL': os.environ.get('REGISTER_EMAIL_VERIFICATION_URL'),
+    'RESET_PASSWORD_VERIFICATION_URL': os.environ.get('RESET_PASSWORD_VERIFICATION_URL'),
+    'VERIFICATION_FROM_EMAIL': os.environ.get('REGISTRATION_EMAIL_HOST_USER'),
+}
+
+# Email Config
+# See https://docs.djangoproject.com/en/3.0/topics/email/
+# See https://docs.djangoproject.com/en/3.0/ref/settings/#email-backend
+# https://medium.com/@_christopher/how-to-send-emails-with-python-django-through-google-smtp-server-for-free-22ea6ea0fb8e
+# Ref: https://www.codingforentrepreneurs.com/blog/use-gmail-for-email-in-django
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.environ.get('REGISTRATION_EMAIL_HOST')
+EMAIL_USE_TLS = bool(eval(os.environ.get('REGISTRATION_EMAIL_USE_TLS', default=True)))
+EMAIL_PORT = int(os.environ.get('REGISTRATION_EMAIL_PORT', default=587))
+EMAIL_HOST_USER = os.environ.get('REGISTRATION_EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('REGISTRATION_EMAIL_HOST_PASSWORD')
+
