@@ -1,0 +1,1180 @@
+openapi: 3.0.2
+info:
+  title: ''
+  version: ''
+paths:
+  /users:
+    get:
+      operationId: listUsers
+      description: 'User APIs, handled by `superuser` role.
+
+        This viewset automatically provides `list`, `create`, `retrieve`, `update`,
+        `destroy` and `change_password` actions.'
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      - name: is_active
+        required: false
+        in: query
+        description: is_active
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 123
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          readOnly: true
+                        username:
+                          type: string
+                          readOnly: true
+                          description: Required. 150 characters or fewer. Letters,
+                            digits and @/./+/-/_ only.
+                        email:
+                          type: string
+                          format: email
+                          readOnly: true
+                          description: Required. For notifying users.
+                        first_name:
+                          type: string
+                          maxLength: 30
+                        last_name:
+                          type: string
+                          maxLength: 150
+                        mobile:
+                          type: string
+                          pattern: \d+
+                          maxLength: 12
+                        address:
+                          type: string
+                          nullable: true
+                          description: User address
+                          maxLength: 200
+                        avatar:
+                          type: string
+                          format: binary
+                          readOnly: true
+                          description: User avatar
+                        created_at:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                        date_joined:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                        last_login:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                        is_active:
+                          type: boolean
+                          description: Designates whether this user should be treated
+                            as active. Unselect this instead of deleting accounts.
+                        updated_at:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                        deleted_at:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                      required:
+                      - mobile
+          description: ''
+    post:
+      operationId: createUser
+      description: 'User APIs, handled by `superuser` role.
+
+        This viewset automatically provides `list`, `create`, `retrieve`, `update`,
+        `destroy` and `change_password` actions.'
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id001
+              properties:
+                username:
+                  type: string
+                  description: Required. 150 characters or fewer. Letters, digits
+                    and @/./+/-/_ only.
+                  pattern: ^[\w.@+-]+\Z
+                  maxLength: 150
+                password:
+                  type: string
+                  maxLength: 128
+                  minLength: 8
+                  pattern: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%\^&*?])[A-Za-z\d!@#$%\^&*?]{8,}
+                email:
+                  type: string
+                  format: email
+                  description: Required. For notifying users.
+                  maxLength: 254
+                first_name:
+                  type: string
+                  maxLength: 30
+                last_name:
+                  type: string
+                  maxLength: 150
+                mobile:
+                  type: string
+                  pattern: \d+
+                  maxLength: 12
+                address:
+                  type: string
+                  nullable: true
+                  description: User address
+                  maxLength: 200
+              required:
+              - username
+              - password
+              - email
+              - mobile
+          multipart/form-data:
+            schema: *id001
+          '*/*':
+            schema: *id001
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  username:
+                    type: string
+                    description: Required. 150 characters or fewer. Letters, digits
+                      and @/./+/-/_ only.
+                    pattern: ^[\w.@+-]+\Z
+                    maxLength: 150
+                  password:
+                    type: string
+                    maxLength: 128
+                    minLength: 8
+                    pattern: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%\^&*?])[A-Za-z\d!@#$%\^&*?]{8,}
+                  email:
+                    type: string
+                    format: email
+                    description: Required. For notifying users.
+                    maxLength: 254
+                  first_name:
+                    type: string
+                    maxLength: 30
+                  last_name:
+                    type: string
+                    maxLength: 150
+                  mobile:
+                    type: string
+                    pattern: \d+
+                    maxLength: 12
+                  address:
+                    type: string
+                    nullable: true
+                    description: User address
+                    maxLength: 200
+                required:
+                - username
+                - password
+                - email
+                - mobile
+          description: ''
+  /users/{id}:
+    get:
+      operationId: retrieveUser
+      description: 'User APIs, handled by `superuser` role.
+
+        This viewset automatically provides `list`, `create`, `retrieve`, `update`,
+        `destroy` and `change_password` actions.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A UUID string identifying this user.
+        schema:
+          type: string
+      - name: is_active
+        required: false
+        in: query
+        description: is_active
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    readOnly: true
+                  username:
+                    type: string
+                    readOnly: true
+                    description: Required. 150 characters or fewer. Letters, digits
+                      and @/./+/-/_ only.
+                  email:
+                    type: string
+                    format: email
+                    readOnly: true
+                    description: Required. For notifying users.
+                  first_name:
+                    type: string
+                    maxLength: 30
+                  last_name:
+                    type: string
+                    maxLength: 150
+                  mobile:
+                    type: string
+                    pattern: \d+
+                    maxLength: 12
+                  address:
+                    type: string
+                    nullable: true
+                    description: User address
+                    maxLength: 200
+                  avatar:
+                    type: string
+                    format: binary
+                    readOnly: true
+                    description: User avatar
+                  created_at:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  date_joined:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  last_login:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  is_active:
+                    type: boolean
+                    description: Designates whether this user should be treated as
+                      active. Unselect this instead of deleting accounts.
+                  updated_at:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  deleted_at:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                required:
+                - mobile
+          description: ''
+    put:
+      operationId: updateUser
+      description: 'User APIs, handled by `superuser` role.
+
+        This viewset automatically provides `list`, `create`, `retrieve`, `update`,
+        `destroy` and `change_password` actions.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A UUID string identifying this user.
+        schema:
+          type: string
+      - name: is_active
+        required: false
+        in: query
+        description: is_active
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id002
+              properties:
+                first_name:
+                  type: string
+                  maxLength: 30
+                last_name:
+                  type: string
+                  maxLength: 150
+                mobile:
+                  type: string
+                  pattern: \d+
+                  maxLength: 12
+                address:
+                  type: string
+                  nullable: true
+                  description: User address
+                  maxLength: 200
+                is_active:
+                  type: boolean
+                  description: Designates whether this user should be treated as active.
+                    Unselect this instead of deleting accounts.
+              required:
+              - mobile
+          multipart/form-data:
+            schema: *id002
+          '*/*':
+            schema: *id002
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    readOnly: true
+                  username:
+                    type: string
+                    readOnly: true
+                    description: Required. 150 characters or fewer. Letters, digits
+                      and @/./+/-/_ only.
+                  email:
+                    type: string
+                    format: email
+                    readOnly: true
+                    description: Required. For notifying users.
+                  first_name:
+                    type: string
+                    maxLength: 30
+                  last_name:
+                    type: string
+                    maxLength: 150
+                  mobile:
+                    type: string
+                    pattern: \d+
+                    maxLength: 12
+                  address:
+                    type: string
+                    nullable: true
+                    description: User address
+                    maxLength: 200
+                  avatar:
+                    type: string
+                    format: binary
+                    readOnly: true
+                    description: User avatar
+                  created_at:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  date_joined:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  last_login:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  is_active:
+                    type: boolean
+                    description: Designates whether this user should be treated as
+                      active. Unselect this instead of deleting accounts.
+                  updated_at:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  deleted_at:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                required:
+                - mobile
+          description: ''
+    patch:
+      operationId: partial_updateUser
+      description: 'User APIs, handled by `superuser` role.
+
+        This viewset automatically provides `list`, `create`, `retrieve`, `update`,
+        `destroy` and `change_password` actions.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A UUID string identifying this user.
+        schema:
+          type: string
+      - name: is_active
+        required: false
+        in: query
+        description: is_active
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id003
+              properties:
+                first_name:
+                  type: string
+                  maxLength: 30
+                last_name:
+                  type: string
+                  maxLength: 150
+                mobile:
+                  type: string
+                  pattern: \d+
+                  maxLength: 12
+                address:
+                  type: string
+                  nullable: true
+                  description: User address
+                  maxLength: 200
+                is_active:
+                  type: boolean
+                  description: Designates whether this user should be treated as active.
+                    Unselect this instead of deleting accounts.
+          multipart/form-data:
+            schema: *id003
+          '*/*':
+            schema: *id003
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    readOnly: true
+                  username:
+                    type: string
+                    readOnly: true
+                    description: Required. 150 characters or fewer. Letters, digits
+                      and @/./+/-/_ only.
+                  email:
+                    type: string
+                    format: email
+                    readOnly: true
+                    description: Required. For notifying users.
+                  first_name:
+                    type: string
+                    maxLength: 30
+                  last_name:
+                    type: string
+                    maxLength: 150
+                  mobile:
+                    type: string
+                    pattern: \d+
+                    maxLength: 12
+                  address:
+                    type: string
+                    nullable: true
+                    description: User address
+                    maxLength: 200
+                  avatar:
+                    type: string
+                    format: binary
+                    readOnly: true
+                    description: User avatar
+                  created_at:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  date_joined:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  last_login:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  is_active:
+                    type: boolean
+                    description: Designates whether this user should be treated as
+                      active. Unselect this instead of deleting accounts.
+                  updated_at:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  deleted_at:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                required:
+                - mobile
+          description: ''
+    delete:
+      operationId: destroyUser
+      description: 'User APIs, handled by `superuser` role.
+
+        This viewset automatically provides `list`, `create`, `retrieve`, `update`,
+        `destroy` and `change_password` actions.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A UUID string identifying this user.
+        schema:
+          type: string
+      - name: is_active
+        required: false
+        in: query
+        description: is_active
+        schema:
+          type: string
+      responses:
+        204:
+          description: ''
+  /auth/me:
+    get:
+      operationId: RetrieveUser
+      description: User get and update Profile by himself or herself.
+      parameters: []
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  username:
+                    type: string
+                    readOnly: true
+                    description: Required. 150 characters or fewer. Letters, digits
+                      and @/./+/-/_ only.
+                  email:
+                    type: string
+                    format: email
+                    readOnly: true
+                    description: Required. For notifying users.
+                  first_name:
+                    type: string
+                    maxLength: 30
+                  last_name:
+                    type: string
+                    maxLength: 150
+                  mobile:
+                    type: string
+                    pattern: \d+
+                    maxLength: 12
+                  address:
+                    type: string
+                    nullable: true
+                    description: User address
+                    maxLength: 200
+                  avatar:
+                    type: string
+                    format: binary
+                    nullable: true
+                    description: User avatar
+                  date_joined:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  last_login:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                required:
+                - mobile
+          description: ''
+    put:
+      operationId: UpdateUser
+      description: User get and update Profile by himself or herself.
+      parameters: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                first_name:
+                  type: string
+                  maxLength: 30
+                last_name:
+                  type: string
+                  maxLength: 150
+                mobile:
+                  type: string
+                  pattern: \d+
+                  maxLength: 12
+                address:
+                  type: string
+                  nullable: true
+                  description: User address
+                  maxLength: 200
+                avatar:
+                  type: string
+                  format: binary
+                  nullable: true
+                  description: User avatar
+              required:
+              - mobile
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  username:
+                    type: string
+                    readOnly: true
+                    description: Required. 150 characters or fewer. Letters, digits
+                      and @/./+/-/_ only.
+                  email:
+                    type: string
+                    format: email
+                    readOnly: true
+                    description: Required. For notifying users.
+                  first_name:
+                    type: string
+                    maxLength: 30
+                  last_name:
+                    type: string
+                    maxLength: 150
+                  mobile:
+                    type: string
+                    pattern: \d+
+                    maxLength: 12
+                  address:
+                    type: string
+                    nullable: true
+                    description: User address
+                    maxLength: 200
+                  avatar:
+                    type: string
+                    format: binary
+                    nullable: true
+                    description: User avatar
+                  date_joined:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  last_login:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                required:
+                - mobile
+          description: ''
+    patch:
+      operationId: PartialUpdateUser
+      description: User get and update Profile by himself or herself.
+      parameters: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                first_name:
+                  type: string
+                  maxLength: 30
+                last_name:
+                  type: string
+                  maxLength: 150
+                mobile:
+                  type: string
+                  pattern: \d+
+                  maxLength: 12
+                address:
+                  type: string
+                  nullable: true
+                  description: User address
+                  maxLength: 200
+                avatar:
+                  type: string
+                  format: binary
+                  nullable: true
+                  description: User avatar
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  username:
+                    type: string
+                    readOnly: true
+                    description: Required. 150 characters or fewer. Letters, digits
+                      and @/./+/-/_ only.
+                  email:
+                    type: string
+                    format: email
+                    readOnly: true
+                    description: Required. For notifying users.
+                  first_name:
+                    type: string
+                    maxLength: 30
+                  last_name:
+                    type: string
+                    maxLength: 150
+                  mobile:
+                    type: string
+                    pattern: \d+
+                    maxLength: 12
+                  address:
+                    type: string
+                    nullable: true
+                    description: User address
+                    maxLength: 200
+                  avatar:
+                    type: string
+                    format: binary
+                    nullable: true
+                    description: User avatar
+                  date_joined:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  last_login:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                required:
+                - mobile
+          description: ''
+  /users/{id}/change-password:
+    post:
+      operationId: change_passwordUser
+      description: 'User APIs, handled by `superuser` role.
+
+        This viewset automatically provides `list`, `create`, `retrieve`, `update`,
+        `destroy` and `change_password` actions.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A UUID string identifying this user.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id004
+              properties:
+                password:
+                  type: string
+                  maxLength: 128
+                  minLength: 8
+                  pattern: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%\^&*?])[A-Za-z\d!@#$%\^&*?]{8,}
+              required:
+              - password
+          multipart/form-data:
+            schema: *id004
+          '*/*':
+            schema: *id004
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  password:
+                    type: string
+                    maxLength: 128
+                    minLength: 8
+                    pattern: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%\^&*?])[A-Za-z\d!@#$%\^&*?]{8,}
+                required:
+                - password
+          description: ''
+  /auth/register:
+    post:
+      operationId: CreateDefaultRegisterUser
+      description: Register new user.
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id005
+              properties:
+                username:
+                  type: string
+                  description: Required. 150 characters or fewer. Letters, digits
+                    and @/./+/-/_ only.
+                  pattern: ^[\w.@+-]+\Z
+                  maxLength: 150
+                first_name:
+                  type: string
+                  maxLength: 30
+                last_name:
+                  type: string
+                  maxLength: 150
+                created_at:
+                  type: string
+                  format: date-time
+                updated_at:
+                  type: string
+                  format: date-time
+                  nullable: true
+                deleted_at:
+                  type: string
+                  format: date-time
+                  nullable: true
+                email:
+                  type: string
+                  format: email
+                  description: Required. For notifying users.
+                  maxLength: 254
+                address:
+                  type: string
+                  nullable: true
+                  description: User address
+                  maxLength: 200
+                mobile:
+                  type: string
+                  pattern: \d+
+                  maxLength: 12
+                avatar:
+                  type: string
+                  format: binary
+                  nullable: true
+                  description: User avatar
+                password:
+                  type: string
+                  maxLength: 128
+                password_confirm:
+                  type: string
+                  writeOnly: true
+              required:
+              - username
+              - email
+              - mobile
+              - password
+              - password_confirm
+          multipart/form-data:
+            schema: *id005
+          '*/*':
+            schema: *id005
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  username:
+                    type: string
+                    description: Required. 150 characters or fewer. Letters, digits
+                      and @/./+/-/_ only.
+                    pattern: ^[\w.@+-]+\Z
+                    maxLength: 150
+                  first_name:
+                    type: string
+                    maxLength: 30
+                  last_name:
+                    type: string
+                    maxLength: 150
+                  id:
+                    type: string
+                    format: uuid
+                    readOnly: true
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  deleted_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  email:
+                    type: string
+                    format: email
+                    description: Required. For notifying users.
+                    maxLength: 254
+                  address:
+                    type: string
+                    nullable: true
+                    description: User address
+                    maxLength: 200
+                  mobile:
+                    type: string
+                    pattern: \d+
+                    maxLength: 12
+                  avatar:
+                    type: string
+                    format: binary
+                    nullable: true
+                    description: User avatar
+                  password:
+                    type: string
+                    maxLength: 128
+                required:
+                - username
+                - email
+                - mobile
+                - password
+          description: ''
+  /auth/verify-registration:
+    post:
+      operationId: CreateVerifyRegistration
+      description: Verify registration via signature.
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id006
+              properties:
+                user_id:
+                  type: string
+                timestamp:
+                  type: integer
+                signature:
+                  type: string
+              required:
+              - user_id
+              - timestamp
+              - signature
+          multipart/form-data:
+            schema: *id006
+          '*/*':
+            schema: *id006
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  user_id:
+                    type: string
+                  timestamp:
+                    type: integer
+                  signature:
+                    type: string
+                required:
+                - user_id
+                - timestamp
+                - signature
+          description: ''
+  /auth/send-reset-password-link:
+    post:
+      operationId: CreateDefaultSendResetPasswordLink
+      description: Send email with reset password link.
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id007
+              properties:
+                login:
+                  type: string
+              required:
+              - login
+          multipart/form-data:
+            schema: *id007
+          '*/*':
+            schema: *id007
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  login:
+                    type: string
+                required:
+                - login
+          description: ''
+  /auth/reset-password:
+    post:
+      operationId: CreateResetPassword
+      description: Reset password, given the signature and timestamp from the link.
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id008
+              properties:
+                user_id:
+                  type: string
+                timestamp:
+                  type: integer
+                signature:
+                  type: string
+                password:
+                  type: string
+              required:
+              - user_id
+              - timestamp
+              - signature
+              - password
+          multipart/form-data:
+            schema: *id008
+          '*/*':
+            schema: *id008
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  user_id:
+                    type: string
+                  timestamp:
+                    type: integer
+                  signature:
+                    type: string
+                  password:
+                    type: string
+                required:
+                - user_id
+                - timestamp
+                - signature
+                - password
+          description: ''
+  /auth/login:
+    post:
+      operationId: CreateTokenObtainPair
+      description: 'Takes a set of user credentials and returns an access and refresh
+        JSON web
+
+        token pair to prove the authentication of those credentials.'
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id009
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                  writeOnly: true
+              required:
+              - username
+              - password
+          multipart/form-data:
+            schema: *id009
+          '*/*':
+            schema: *id009
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  username:
+                    type: string
+                required:
+                - username
+          description: ''
+  /auth/refresh:
+    post:
+      operationId: CreateTokenRefresh
+      description: 'Takes a refresh type JSON web token and returns an access type
+        JSON web
+
+        token if the refresh token is valid.'
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id010
+              properties:
+                refresh:
+                  type: string
+              required:
+              - refresh
+          multipart/form-data:
+            schema: *id010
+          '*/*':
+            schema: *id010
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  refresh:
+                    type: string
+                required:
+                - refresh
+          description: ''
+  /auth/logout:
+    post:
+      operationId: CreateOutstandingToken
+      description: Logout of system.
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id011
+              properties:
+                refresh:
+                  type: string
+              required:
+              - refresh
+          multipart/form-data:
+            schema: *id011
+          '*/*':
+            schema: *id011
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  refresh:
+                    type: string
+                required:
+                - refresh
+          description: ''
+  /auth/me/change-password:
+    post:
+      operationId: CreateChangePassword
+      description: Change the user password.
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id012
+              properties:
+                old_password:
+                  type: string
+                password:
+                  type: string
+                password_confirm:
+                  type: string
+              required:
+              - old_password
+              - password
+              - password_confirm
+          multipart/form-data:
+            schema: *id012
+          '*/*':
+            schema: *id012
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  old_password:
+                    type: string
+                  password:
+                    type: string
+                  password_confirm:
+                    type: string
+                required:
+                - old_password
+                - password
+                - password_confirm
+          description: ''
