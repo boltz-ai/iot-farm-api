@@ -1,4 +1,4 @@
-from rest_framework import parsers, status
+from rest_framework import status
 from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -8,13 +8,22 @@ from rest_framework_simplejwt.utils import aware_utcnow
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.views import TokenViewBase
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from users.models import User
-from .serializers import ProfileSerializer
+from .serializers import LoginTokenObtainPairSerializer, ProfileSerializer
 
 
 # Create your views here.
+class LoginView(TokenViewBase):
+    """
+    Takes a set of user credentials and returns an access and refresh JSON web
+    token pair to prove the authentication of those credentials.
+    """
+    serializer_class = LoginTokenObtainPairSerializer
+
+
 class LogoutView(CreateAPIView, JWTAuthentication):
     """
     Logout of system.
@@ -47,7 +56,6 @@ class ProfileView(RetrieveUpdateAPIView, JWTAuthentication):
     queryset = User.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated, ]
-    parser_classes = [parsers.MultiPartParser, ]
 
     def retrieve(self, request, *args, **kwargs):
         login_user = self.authenticate(request)[0]
@@ -67,7 +75,3 @@ class ProfileView(RetrieveUpdateAPIView, JWTAuthentication):
             login_user._prefetched_objects_cache = {}
 
         return Response(serializer.data)
-
-    def partial_update(self, request, *args, **kwargs):
-        kwargs['partial'] = True
-        return self.update(request, *args, **kwargs)

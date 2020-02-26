@@ -1,5 +1,18 @@
+from django.utils import timezone
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 from users.serializers import UserGenericSerializer
 from users.models import User
+
+
+class LoginTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        self.user.last_login = timezone.now()
+        self.user.save()
+
+        return data
 
 
 class ProfileSerializer(UserGenericSerializer):
