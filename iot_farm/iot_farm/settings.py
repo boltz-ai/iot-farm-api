@@ -188,7 +188,7 @@ CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
         'LOCATION': os.environ.get('REDIS_LOCATION'),
-        'KEY_PREFIX': 'enhance_video',
+        'KEY_PREFIX': 'iot_farm',
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }

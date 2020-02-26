@@ -6,7 +6,7 @@ from django.conf import settings
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'iot_farm.settings')
 
-app = Celery('enhance_video')
+app = Celery('iot_farm')
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
