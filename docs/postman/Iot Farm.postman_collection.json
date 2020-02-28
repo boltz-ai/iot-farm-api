@@ -1,0 +1,1350 @@
+{
+	"info": {
+		"_postman_id": "7b02e49e-6284-48fe-a39f-cfc2f82ccd0b",
+		"name": "Iot Farm",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5f42e0f4-26dd-49ca-8f4e-d1e126ca9d4c",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    pm.environment.set(\"protocol\", \"http\");",
+									"    pm.environment.set(\"server\", \"localhost\");",
+									"    // pm.environment.set(\"server\", \"123.24.129.95\");",
+									"    pm.environment.set(\"port\", \"8000\");",
+									"    pm.environment.set(\"username\", \"ngocngoan\");",
+									"    pm.environment.set(\"password\", \"Admin12345^\");",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "b2808765-5df7-4c70-a474-261748356862",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    const login = JSON.parse(responseBody);",
+									"    tests['Status code is 200'] = responseCode.code === 200;",
+									"",
+									"    if (responseCode.code === 200) {",
+									"        pm.environment.set('access', login['access']);",
+									"        pm.environment.set('refresh', login['refresh']);",
+									"    }",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"{{username}}\",\n\t\"password\": \"{{password}}\"\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/auth/login",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    const login = JSON.parse(responseBody);",
+									"    ",
+									"    postman.setEnvironmentVariable(\"access\", login[\"access\"]);",
+									"    postman.setEnvironmentVariable(\"refresh\", login[\"refresh\"]);",
+									"    tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"refresh\": \"{{refresh}}\"\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/auth/refresh",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8d8a591a-aa05-4a28-b4cb-044aa3e6a780",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{access}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"refresh\": \"{{refresh}}\"\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/auth/logout",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"{{access}}\"\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/auth/verify",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"auth",
+								"verify"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5c680d3e-73d8-4792-ab48-f6d3cd563c34",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    let user_index = parseInt(pm.variables.get(\"user_index\"));",
+									"",
+									"    if(!user_index) {",
+									"        user_index = 0;",
+									"    }",
+									"",
+									"    user_index += 1;",
+									"    pm.environment.set(\"user_index\", user_index);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"ngoan{{user_index}}\",\n\t\"first_name\": \"ngoan {{user_index}}\",\n\t\"last_name\": \"do\",\n\t\"email\": \"ngocngoan060288@gmail.com\",\n\t\"mobile\": \"0912345678\",\n\t\"password\": \"Admin12345^\",\n\t\"password_confirm\": \"Admin12345^\"\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/auth/register",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Registration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5c680d3e-73d8-4792-ab48-f6d3cd563c34",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    let user_index = parseInt(pm.variables.get(\"user_index\"));",
+									"",
+									"    if(!user_index) {",
+									"        user_index = 0;",
+									"    }",
+									"",
+									"    user_index += 1;",
+									"    pm.environment.set(\"user_index\", user_index);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"f2eb02e2-26a5-4215-800b-dd2eb13f5516\",\n    \"timestamp\": \"1576330791\",\n    \"signature\": \"ihMv3Nl2YvQBsJr0_OaeCK8xf4k\"\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/auth/verify-registration",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"auth",
+								"verify-registration"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Reset Password Link",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5c680d3e-73d8-4792-ab48-f6d3cd563c34",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    ",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"login\": \"ngoan177\"\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/auth/send-reset-password-link",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"auth",
+								"send-reset-password-link"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5c680d3e-73d8-4792-ab48-f6d3cd563c34",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    ",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\": \"Admin123456&\",\n    \"user_id\": \"fa8a3c6f-4920-4366-89a4-ec7ad9e0e39f\",\n    \"timestamp\": \"1576088710\",\n    \"signature\": \"q7HaDQr36dHHBYwma1eOry8J0oY\"\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/auth/reset-password",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"auth",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/auth/me",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"auth",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "free1",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "free1",
+									"type": "text"
+								},
+								{
+									"key": "mobile",
+									"value": "0912345678",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": []
+								}
+							],
+							"options": {
+								"formdata": {}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/auth/me",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"auth",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Partial Change Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "last_name",
+									"value": "free168",
+									"type": "text"
+								}
+							],
+							"options": {
+								"formdata": {}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/auth/me",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"auth",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Partial Change Avatar",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": []
+								}
+							],
+							"options": {
+								"formdata": {}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/auth/me",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"auth",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User changes his or her password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5c680d3e-73d8-4792-ab48-f6d3cd563c34",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    ",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"old_password\": \"Admin12345^\",\n    \"password\": \"Admin123456&\",\n    \"password_confirm\": \"Admin123456&\"\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/auth/me/change-password",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"auth",
+								"me",
+								"change-password"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    pm.test(\"Status code is 200\", function () {",
+									"        const users = JSON.parse(responseBody);",
+									"        ",
+									"        if(users.results.length) {",
+									"            pm.environment.set(\"user_id\", users.results[0].id);",
+									"        }",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "fdb1ed2b-e731-4851-9c9f-c0d28197c41f",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    pm.environment.set(\"limit\", \"10\");",
+									"    pm.environment.set(\"offset\", \"0\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/users?limit={{limit}}&offset={{offset}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "{{limit}}"
+								},
+								{
+									"key": "offset",
+									"value": "{{offset}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    const users = JSON.parse(responseBody);",
+									"    ",
+									"    if(users.results.length) {",
+									"        pm.environment.set(\"user_id\", users.results[0].id);",
+									"    }",
+									"    ",
+									"    pm.test(\"Status code is 200\", function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "fdb1ed2b-e731-4851-9c9f-c0d28197c41f",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    let user_index = parseInt(pm.variables.get(\"user_index\"));",
+									"",
+									"    if(!user_index) {",
+									"        user_index = 0;",
+									"    }",
+									"",
+									"    user_index += 1;",
+									"    pm.environment.set(\"user_index\", user_index);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"free{{user_index}}\",\n    \"password\": \"{{password}}\",\n    \"email\": \"free{{user_index}}@example.com\",\n    \"first_name\": \"free{{user_index}}\",\n    \"last_name\": \"free{{user_index}}\",\n    \"mobile\": \"0912345678\",\n    \"address\": \"\"\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/users?",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "{{limit}}",
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": "{{offset}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Detail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    const user = JSON.parse(responseBody);",
+									"    ",
+									"    pm.test(\"Status code is 200\", function () {",
+									"        pm.response.to.have.status(200);",
+									"        if(!!user) {",
+									"            pm.environment.set(\"user_id\", user.id);",
+									"        }",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/users/{{user_id}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"users",
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change User Detail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    pm.test(\"Status code is 200\", function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "7e434ca2-95cd-4f06-b77d-c249c737839e",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    let user_index = parseInt(pm.variables.get(\"user_index\"));",
+									"",
+									"    if(!user_index) {",
+									"        user_index = 0;",
+									"    }",
+									"",
+									"    pm.environment.set(\"user_index\", user_index);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"free{{user_index}}\",\n    \"last_name\": \"free00000{{user_index}}\",\n    \"mobile\": \"0912345678\",\n    \"address\": null,\n    \"role\": 16032,\n    \"last_login\": null,\n    \"is_active\": true\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/users/{{user_id}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"users",
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Activate/Deactivate User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    const user = JSON.parse(responseBody);",
+									"    pm.environment.set(\"is_active_user\", user.is_active);",
+									"    ",
+									"    pm.test(\"Status code is 200\", function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "a128bb2f-4421-4f68-9ece-7b96fea40f02",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    let isActiveUser = pm.variables.get(\"is_active_user\");",
+									"    pm.environment.set(\"is_active_user\", !isActiveUser);",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"is_active\": {{is_active_user}}\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/users/{{user_id}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"users",
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    pm.test(\"Status code is 204\", function () {",
+									"        pm.response.to.have.status(204);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/users/{{user_id}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"users",
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change User Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67972277-a1e6-48ce-888b-57e8678f8a45",
+								"exec": [
+									"if (pm.environment.name === 'Enhance Video') {",
+									"    pm.test(\"Status code is 200\", function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "f4e67f5c-15ea-4f7b-aab5-90ac2d467d38",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\": \"Admin12345^\"\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}:{{port}}/users/{{user_id}}/change-password",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"users",
+								"{{user_id}}",
+								"change-password"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
