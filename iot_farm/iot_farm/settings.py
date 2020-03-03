@@ -100,6 +100,17 @@ DATABASES = {
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
         'HOST': os.environ.get('DB_HOST'),
         'PORT': os.environ.get('DB_PORT'),
+    },
+    'iot': {
+        'ENGINE': 'djongo',
+        'ENFORCE_SCHEMA': True,
+        'NAME': os.environ.get('MONGO_INITDB_DATABASE'),
+        'HOST': os.environ.get('MONGO_DB'),
+        'PORT': os.environ.get('MONGO_PORT'),
+        'USER': os.environ.get('MONGO_INITDB_ROOT_USERNAME'),
+        'PASSWORD': os.environ.get('MONGO_INITDB_ROOT_PASSWORD'),
+        'AUTH_SOURCE': 'admin',
+        'AUTH_MECHANISM': 'SCRAM-SHA-1',
     }
 }
 
