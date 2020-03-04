@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_registration',
     'users.apps.UsersConfig',
     'authentication.apps.AuthenticationConfig',
+    'farms.apps.FarmsConfig',
 ]
 
 AUTH_USER_MODEL = 'users.User'
