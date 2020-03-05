@@ -207,6 +207,7 @@ CACHES = {
     }
 }
 
+
 # Celery task queue configs
 
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
@@ -264,6 +265,7 @@ REST_REGISTRATION = {
     'VERIFICATION_FROM_EMAIL': os.environ.get('REGISTRATION_EMAIL_HOST_USER'),
 }
 
+
 # Email Config
 # See https://docs.djangoproject.com/en/3.0/topics/email/
 # See https://docs.djangoproject.com/en/3.0/ref/settings/#email-backend
@@ -276,3 +278,10 @@ EMAIL_USE_TLS = bool(eval(os.environ.get('REGISTRATION_EMAIL_USE_TLS', default=T
 EMAIL_PORT = int(os.environ.get('REGISTRATION_EMAIL_PORT', default=587))
 EMAIL_HOST_USER = os.environ.get('REGISTRATION_EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('REGISTRATION_EMAIL_HOST_PASSWORD')
+
+
+# AWS Config
+
+AWS_REGION_NAME = os.environ.get('AWS_REGION_NAME')
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')

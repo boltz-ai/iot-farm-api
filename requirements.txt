@@ -20,6 +20,9 @@ djongo
 drf-nested-routers
 drf-extensions
 
+## AWS
+boto3
+
 ## Image
 Pillow
 
