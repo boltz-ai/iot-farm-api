@@ -14,6 +14,8 @@ tags:
     description: Authentication APIs
   - name: Users
     description: User APIs, handled by `superuser` role.
+  - name: Farms
+    description: Farm APIs, handled by `anynomous` role.
 components:
   securitySchemes:
     bearerAuth:
@@ -431,6 +433,51 @@ components:
           type: string
       example:
         detail: Password changed successfully
+    SensorDetailResponse:
+      type: object
+      description: Response body for `list` and `retrieve` actions
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        device:
+          type: string
+          description: Required
+          maxLength: 50
+        parameter:
+          type: string
+          description: Required
+          maxLength: 20
+        value:
+          type: number
+          description: Required
+        status:
+          enum:
+          - 'ON'
+          - 'OFF'
+          description: 'The status of device, `ON` or `OFF`. Default:
+            `ON`'
+        mode:
+          enum:
+          - AUTO
+          - MANUAL
+          description: 'The mode of device, `AUTO` or `MANUAL`. Default:
+            `AUTO`'
+        user:
+          type: string
+          description: Required.
 security:
   - bearerAuth: []
 paths:
@@ -941,5 +988,71 @@ paths:
                     type: string
                 example:
                   detail: The user password changed successfully
+          description: ''
+  /sensors:
+    get:
+      tags:
+        - Farms
+      operationId: listSensors
+      summary: Get sensors.
+      description: Sensor APIs. This viewset automatically provides `list` and `retrieve`
+        actions.
+      security: []
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 123
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SensorDetailResponse'
+          description: ''
+  /sensors/{id}:
+    get:
+      tags:
+        - Farms
+      operationId: retrieveSensor
+      summary: Get sensor detail.
+      description: Sensor APIs. This viewset automatically provides `list` and `retrieve`
+        actions.
+      security: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A UUID string identifying this sensor.
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorDetailResponse'
           description: ''
   
