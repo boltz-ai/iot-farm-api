@@ -7,7 +7,7 @@ services:
     env_file:
       - .env
     ports:
-      - ${DATABASE_PORT}:5432
+      - ${DATABASE_EXTERNAL_PORT}:5432
     environment:
       POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USER}
@@ -22,7 +22,7 @@ services:
     env_file:
       - .env
     ports:
-      - ${DATABASE_SECONDARY_PORT}:5432
+      - ${DATABASE_SECONDARY_EXTERNAL_PORT}:5432
     environment:
       POSTGRES_DB: ${DATABASE_SECONDARY_NAME}
       POSTGRES_USER: ${DATABASE_SECONDARY_USER}
@@ -37,7 +37,7 @@ services:
     env_file:
       - .env
     ports:
-      - ${MONGO_PORT}:27017
+      - ${MONGO_EXTERNAL_PORT}:27017
     volumes:
       - mongo_volume:/data/db
 

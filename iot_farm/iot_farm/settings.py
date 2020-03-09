@@ -94,28 +94,28 @@ WSGI_APPLICATION = 'iot_farm.wsgi.application'
 # }
 
 DATABASES = {
-    'default': {
+    os.environ.get('DATABASE_ALIAS', 'default'): {
         'ENGINE': os.environ.get('DATABASE_ENGINE', 'django.db.backends.sqlite3'),
         'NAME': os.environ.get('DATABASE_NAME', os.path.join(BASE_DIR, 'db.sqlite3')),
         'HOST': os.environ.get('DATABASE_HOST'),
-        'PORT': os.environ.get('DATABASE_PORT'),
+        'PORT': os.environ.get('DATABASE_INTERNAL_PORT'),
         'USER': os.environ.get('DATABASE_USER'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
     },
-    'secondary': {
+    os.environ.get('DATABASE_SECONDARY_ALIAS'): {
         'ENGINE': os.environ.get('DATABASE_SECONDARY_ENGINE', 'django.db.backends.sqlite3'),
         'NAME': os.environ.get('DATABASE_SECONDARY_NAME', os.path.join(BASE_DIR, 'db.sqlite3')),
         'HOST': os.environ.get('DATABASE_SECONDARY_HOST'),
-        'PORT': os.environ.get('DATABASE_SECONDARY_PORT'),
+        'PORT': os.environ.get('DATABASE_SECONDARY_INTERNAL_PORT'),
         'USER': os.environ.get('DATABASE_SECONDARY_USER'),
         'PASSWORD': os.environ.get('DATABASE_SECONDARY_PASSWORD'),
     },
-    'iot': {
+    os.environ.get('MONGO_ALIAS'): {
         'ENGINE': 'djongo',
         'ENFORCE_SCHEMA': True,
         'NAME': os.environ.get('MONGO_INITDB_DATABASE'),
         'HOST': os.environ.get('MONGO_DB'),
-        'PORT': os.environ.get('MONGO_PORT'),
+        'PORT': os.environ.get('MONGO_INTERNAL_PORT'),
         'USER': os.environ.get('MONGO_INITDB_ROOT_USERNAME'),
         'PASSWORD': os.environ.get('MONGO_INITDB_ROOT_PASSWORD'),
         'AUTH_SOURCE': 'admin',

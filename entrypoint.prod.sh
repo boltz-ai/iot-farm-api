@@ -5,7 +5,7 @@ if [ "$DATABASE_NAME" = "iot_farm" ]
 then
     echo "Waiting for postgres..."
 
-    while ! netcat -z $DATABASE_HOST $DATABASE_PORT; do
+    while ! netcat -z $DATABASE_HOST $DATABASE_INTERNAL_PORT; do
       sleep 0.1
     done
 
