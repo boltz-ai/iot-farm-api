@@ -9,6 +9,9 @@ services:
     ports:
       - ${DATABASE_PORT}:5432
     environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       TZ: ${DJANGO_TIME_ZONE}
     volumes:
       - postgres_volume:/var/lib/postgresql/data/
@@ -23,6 +26,9 @@ services:
     ports:
       - ${DATABASE_SECONDARY_PORT}:5432
     environment:
+      POSTGRES_DB: ${DATABASE_SECONDARY_NAME}
+      POSTGRES_USER: ${DATABASE_SECONDARY_USER}
+      POSTGRES_PASSWORD: ${DATABASE_SECONDARY_PASSWORD}
       TZ: ${DJANGO_TIME_ZONE}
     volumes:
       - postgres_secondary_volume:/var/lib/postgresql/data/
