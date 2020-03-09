@@ -101,7 +101,7 @@ services:
       - .env
     command: gunicorn iot_farm.wsgi:application --bind 0.0.0.0:8000
     ports:
-      - 8000:8000
+      - ${DJANGO_PUBLIC_PORT}:8000
     volumes:
       - ./iot_farm:/home/app/iot_farm
       - media_volume:/home/app/iot_farm/media
@@ -150,7 +150,7 @@ services:
     volumes:
       - ./docs:/app/docs
     ports:
-      - 8080:8080
+      - ${SWAGGER_OPENAPI_PORT}:8080
     environment:
       SWAGGER_JSON: /app/docs/IotFramAPIs.yaml
 
