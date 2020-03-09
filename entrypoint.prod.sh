@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
-if [ "$POSTGRES_DB" = "iot_farm" ]
+if [ "$DATABASE_NAME" = "iot_farm" ]
 then
     echo "Waiting for postgres..."
 
-    while ! netcat -z $DB_HOST $DB_PORT; do
+    while ! netcat -z $DATABASE_HOST $DATABASE_PORT; do
       sleep 0.1
     done
 

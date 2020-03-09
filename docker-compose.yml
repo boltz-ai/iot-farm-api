@@ -4,10 +4,10 @@ services:
   postgres:
     image: postgres:12
     container_name: iot_farm_postgres
-    ports:
-      - 5432:5432
     env_file:
       - .env
+    ports:
+      - ${DATABASE_PORT}:5432
     environment:
       TZ: ${DJANGO_TIME_ZONE}
     volumes:
@@ -16,10 +16,10 @@ services:
   postgres_secondary:
     image: postgres:12
     container_name: iot_farm_postgres_secondary
-    ports:
-      - 5433:5432
     env_file:
       - .env
+    ports:
+      - ${DATABASE_SECONDARY_PORT}:5432
     environment:
       TZ: ${DJANGO_TIME_ZONE}
     volumes:
@@ -28,18 +28,18 @@ services:
   mongo:
     image: mongo:4-bionic
     container_name: iot_farm_mongo
-    ports:
-      - 27017:27017
     env_file:
       - .env
+    ports:
+      - ${MONGO_PORT}:27017
     volumes:
       - mongo_volume:/data/db
 
   iot_farm_api:
-    env_file:
-      - .env
     build: .
     container_name: iot_farm_api
+    env_file:
+      - .env
     command: python manage.py runserver 0.0.0.0:8000
     ports:
       - 8000:8000
